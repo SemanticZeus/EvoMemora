@@ -1,7 +1,6 @@
 ﻿#include "flashcardview.h"
 #include "textwidget.h"
 #include "imagewidget.h"
-#include <filesystem>
 
 FlashCardView::FlashCardView(int w, int h, QWidget *parent)
     : QTabWidget(parent), frontWidget(nullptr), backWidget(nullptr)
