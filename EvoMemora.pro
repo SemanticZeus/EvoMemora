@@ -15,9 +15,11 @@ SOURCES += \
     flashcardedit.cpp \
     flashcardeditwidget.cpp \
     flashcardeditwindow.cpp \
+    flashcardmanager.cpp \
     flashcardview.cpp \
+    flashcardviewwidget.cpp \
+    homewidget.cpp \
     imagewidget.cpp \
-    leitner.cpp \
     main.cpp \
     mainwindow.cpp \
     snapshot.cpp \
@@ -29,9 +31,11 @@ HEADERS += \
     flashcardedit.h \
     flashcardeditwidget.h \
     flashcardeditwindow.h \
+    flashcardmanager.h \
     flashcardview.h \
+    flashcardviewwidget.h \
+    homewidget.h \
     imagewidget.h \
-    leitner.h \
     mainwindow.h \
     snapshot.h \
     textwidget.h

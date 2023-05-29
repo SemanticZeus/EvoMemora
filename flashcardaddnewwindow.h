@@ -3,29 +3,30 @@
 
 #include <QWidget>
 #include "flashcardeditwidget.h"
+#include "flashcardmanager.h"
 
 class FlashCardAddNewWindow : public QWidget
 {
     Q_OBJECT
 public:
-    FlashCardAddNewWindow(QWidget *parent = nullptr);
+    FlashCardAddNewWindow(FlashcardManager *flashcardManager, QWidget *parent = nullptr);
     void setRoot(QString root);
     QString getRoot();
-    QVector<QString>& getNames();
-    void clearNames() { names.clear(); }
+    QToolBar *getToolBar() { return mainToolBar; }
 
 signals:
-    void newFlashcardsAdded();
+    void homeActionTriggered();
 
 protected:
     void setupToolBar();
-    void closeEvent(QCloseEvent *event);
 
 private:
     FlashCardEditWidget *flashCardEditWidget;
     QToolBar *mainToolBar;
     QString root;
-    QVector<QString> names;
+    QAction *homeAction;
+    QAction *addAction;
+    FlashcardManager *flashcardManager;
 };
 
 #endif // FLASHCARDADDNEWWINDOW_H

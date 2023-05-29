@@ -3,53 +3,53 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    databaseName = "EvoMemora.rox";
     setupMenu();
-    setupToolBar();
-    flashCardView = new FlashCardView;
-    flashCardEditWindow = new FlashCardEditWindow;
-    flashCardAddNewWindow = new FlashCardAddNewWindow;
     restorePreviousSettings();
-    QScrollArea *scrollArea = new QScrollArea;
-    scrollArea->setWidget(flashCardView);
-    setCentralWidget(scrollArea);
-    connect(flashCardEditWindow, &FlashCardEditWindow::updateView,
-            flashCardView, &FlashCardView::reloadFlashCard);
-    connect(flashCardAddNewWindow, &FlashCardAddNewWindow::newFlashcardsAdded,
-            this, &MainWindow::updateFlashCardsList);
+    flashcardManager = new FlashcardManager(flashCardPath, databaseName);
 
-    leitner = new Leitner(flashCardPath, "leitner.rox");
+    flashCardViewWidget = new FlashCardViewWidget(flashcardManager);
+    addToolBar(flashCardViewWidget->getToolBar());
+    flashCardViewWidget->getToolBar()->hide();
+    flashCardEditWindow = new FlashCardEditWindow;
+    flashCardAddNewWindow = new FlashCardAddNewWindow(flashcardManager);
+    addToolBar(flashCardAddNewWindow->getToolBar());
+    flashCardAddNewWindow->getToolBar()->hide();
+
+
+    homeWidget = new HomeWidget;
+    stackedWidget = new QStackedWidget;
+    stackedWidget->addWidget(homeWidget);
+    stackedWidget->addWidget(flashCardViewWidget);
+    stackedWidget->addWidget(flashCardAddNewWindow);
+    setCentralWidget(stackedWidget);
+
+
+    connect(homeWidget->reviewFlashcardsButton, &QPushButton::released, [&]() {
+        flashCardViewWidget->getToolBar()->show();
+        stackedWidget->setCurrentWidget(flashCardViewWidget);
+    });
+    connect(flashCardViewWidget, &FlashCardViewWidget::homeActionTriggered, [&](){
+       flashCardViewWidget->getToolBar()->hide();
+       stackedWidget->setCurrentWidget(homeWidget);
+    });
+    connect(homeWidget->addNewFlashcardsButton, &QPushButton::released, [&]() {
+        flashCardAddNewWindow->getToolBar()->show();
+        flashCardAddNewWindow->setRoot(flashCardPath);
+        stackedWidget->setCurrentWidget(flashCardAddNewWindow);
+    });
+    connect(flashCardAddNewWindow, &FlashCardAddNewWindow::homeActionTriggered, [&](){
+       flashCardAddNewWindow->getToolBar()->hide();
+       stackedWidget->setCurrentWidget(homeWidget);
+    });
+    connect(flashCardEditWindow, &FlashCardEditWindow::updateView,
+            flashCardViewWidget->getFlashCardView(), &FlashCardView::reloadFlashCard);
 }
 
 MainWindow::~MainWindow()
 {
-    delete leitner;
-}
 
-void MainWindow::updateFlashCardsList()
-{
-    auto names = flashCardAddNewWindow->getNames();
-    leitner->addFlashCard(names);
-    flashCardAddNewWindow->clearNames();
-}
-
-void MainWindow::setupToolBar()
-{
-    QToolBar *toolbar = new QToolBar("Main ToolBar", this);
-    addToolBar(toolbar);
-    nextButton = new QPushButton;
-    previousButton = new QPushButton;
-
-    nextButton->setText("next flashcard");
-    nextButton->setIcon(QIcon(":/resources/icons8-forward-100.png"));
-
-    previousButton->setIcon(QIcon(":/resources/icons8-back-100.png"));
-    previousButton->setText("previous flashcard");
-
-    toolbar->addWidget(previousButton);
-    toolbar->addWidget(nextButton);
-    connect(nextButton, &QPushButton::released, [&](){
-
-    });
+    delete flashcardManager;
 }
 
 void MainWindow::setupMenu()
@@ -62,48 +62,35 @@ void MainWindow::setupMenu()
     exitAction->setShortcut(Qt::CTRL + Qt::Key_Q);
     connect(exitAction, &QAction::triggered, this, &MainWindow::close);
     connect(openAction, &QAction::triggered, this, &MainWindow::openAction);
-    QAction* newFlashCardAction = new QAction("New FlashCard", this);
-    newFlashCardAction->setShortcut(Qt::CTRL + Qt::Key_N);
-    connect(newFlashCardAction, &QAction::triggered, [&]() {
-        flashCardAddNewWindow->setRoot(flashCardPath);
-        flashCardAddNewWindow->show();
-        flashCardAddNewWindow->raise();
-    });
+
     QAction* editFlashCardAction = new QAction("Edit Current FlashCard", this);
-    newFlashCardAction->setShortcut(Qt::CTRL + Qt::Key_E);
     connect(editFlashCardAction, &QAction::triggered, [&]() {
        flashCardEditWindow->show();
        flashCardEditWindow->raise();
        flashCardEditWindow->loadFlashCard(flashCardView->getFlashCard());
     });
     fileMenu->addAction(openAction);
-    fileMenu->addAction(newFlashCardAction);
-    fileMenu->addAction(editFlashCardAction);
     fileMenu->addAction(exitAction);
 }
 
 void MainWindow::restorePreviousSettings()
 {
-    QSettings settings("Roxane", "Leitner");
+    QSettings settings("Roxane", databaseName);
     const QByteArray previousSize =
             settings.value("MainWindow/Size", QByteArray()).toByteArray();
     if (!previousSize.isEmpty()) restoreGeometry(previousSize);
     else resize(900,700);
     flashCardPath = settings.value("flashCardPath").toString();
-    const QByteArray previousEditSize =
-            settings.value("FlashCardEditWindow/Size", QByteArray()).toByteArray();
-    if (!previousEditSize.isEmpty()) flashCardEditWindow->restoreGeometry(previousEditSize);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     Q_UNUSED(event);
-    QSettings settings("Roxane", "Leitner");
-    settings.setValue("FlashCardEditWindow/Size", flashCardEditWindow->saveGeometry());
+    QSettings settings("Roxane", databaseName);
     settings.setValue("MainWindow/Size", saveGeometry());
     settings.setValue("flashCardPath", flashCardPath);
     settings.setValue("FlashCardPath", flashCardPath);
-    leitner->save();
+    flashcardManager->save();
 }
 
 void MainWindow::openAction()
@@ -119,16 +106,7 @@ void MainWindow::openAction()
     if (folderPath.isEmpty()) return;
     flashCardPath = folderPath;
     emit flashCardPathUpdated();
-}
-
-void MainWindow::wheelEvent(QWheelEvent* event)
-{
-    if (event->modifiers() & Qt::ControlModifier) {
-        int delta = event->angleDelta().y()/10;
-        int w = flashCardView->width();
-        qreal scaleFactor = static_cast<qreal>(w+delta)/w;
-        flashCardView->scale(scaleFactor);
-        update();
-    }
-    QMainWindow::wheelEvent(event);
+    flashcardManager->save();
+    delete flashcardManager;
+    flashcardManager = new FlashcardManager(flashCardPath, databaseName);
 }

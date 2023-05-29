@@ -7,7 +7,9 @@
 #include "flashcardedit.h"
 #include "flashcardeditwindow.h"
 #include "flashcardaddnewwindow.h"
-#include "leitner.h"
+#include "flashcardmanager.h"
+#include "homewidget.h"
+#include "flashcardviewwidget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -22,10 +24,10 @@ signals:
 
 private slots:
     void openAction();
-    void updateFlashCardsList();
+
 protected:
     virtual void closeEvent(QCloseEvent *event) override;
-    void wheelEvent(QWheelEvent* event) override;
+    //void wheelEvent(QWheelEvent* event) override;
 
 private:
     void setupMenu();
@@ -33,14 +35,19 @@ private:
     void setupToolBar();
 
 private:
+    HomeWidget *homeWidget;
     FlashCardView *flashCardView;
     FlashCardAddNewWindow *flashCardAddNewWindow;
     FlashCardEditWindow *flashCardEditWindow;
+    FlashCardViewWidget *flashCardViewWidget;
     QString flashCardPath;
     QPushButton *nextButton;
     QPushButton *previousButton;
     QString rootFolder;
-    Leitner *leitner;
+    FlashcardManager *flashcardManager;
+    QToolBar *toolbar;
+    QStackedWidget *stackedWidget;
+    QString databaseName;
 };
 
 #endif // MAINWINDOW_H

@@ -10,6 +10,7 @@ Q_OBJECT
 public:
     FlashCardEditWindow(QWidget *parent = nullptr);
     void loadFlashCard(const FlashCard &flashcard);
+    QToolBar *getToolBar();
 
 signals:
     void updateView();

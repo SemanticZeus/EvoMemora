@@ -27,6 +27,34 @@ void FlashCardEditWidget::closeEvent(QCloseEvent *event)
     emit updateView();
 }
 
+QToolBar *FlashCardEditWidget::makeToolBar()
+{
+    QToolBar *mainToolBar = new QToolBar;
+    //QWidget* spacer = new QWidget();
+    //spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    //saveToolBar->addWidget(spacer);
+    mainToolBar->setObjectName("FlashCardAddNewToolBar");
+
+     QAction *addAction = new QAction("Add FlashCard", this);
+     connect(addAction, &QAction::triggered, [&]() {
+         this->save();
+         names.append(this->getName());
+         this->clear();
+         this->setRoot(root);
+     });
+     mainToolBar->addAction(addAction);
+
+     QAction *closeAction = new QAction("Close", this);
+     connect(closeAction, &QAction::triggered, [&]() {
+         this->clear();
+         this->close();
+         emit newFlashcardsAdded();
+     });
+     mainToolBar->addAction(closeAction);
+
+     return mainToolBar;
+}
+
 void FlashCardEditWidget::setupToolBar()
 {
     toolBar = new QToolBar;

@@ -16,6 +16,7 @@ public:
     FlashCard getFlashCard();
     void scale(qreal k);
     QString getRoot() { return flashcard.getRoot(); }
+    void reset();
 
 public slots:
     void reloadFlashCard();
