@@ -13,8 +13,9 @@ FlashCard FlashCardView::getFlashCard()
     return flashcard;
 }
 
-bool FlashCardView::loadFlashCard(QString root, QString name)
+void FlashCardView::reset()
 {
+    totalScale=1;
     flashcard.clear();
     textList.clear();
     imageList.clear();
@@ -22,8 +23,11 @@ bool FlashCardView::loadFlashCard(QString root, QString name)
     if (backWidget) delete backWidget;
     frontWidget = new QWidget(this);
     backWidget = new QWidget(this);
-    //frontWidget->setStyleSheet("background-color: grey;");
+}
 
+bool FlashCardView::loadFlashCard(QString root, QString name)
+{
+    reset();
     flashcard.setRootFolder(root);
     if (!flashcard.loadFlashCard(name)) return false;
     loadFaceWidget(Front);

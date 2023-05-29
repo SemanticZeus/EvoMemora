@@ -15,9 +15,11 @@ public:
     QString getRoot() { return flashCardEdit->getRoot(); }
     void save() { flashCardEdit->save(); }
     QString getName() { return flashCardEdit->getName(); }
+    QToolBar *makeToolBar();
 
 signals:
     void updateView();
+    void newFlashcardsAdded();
 
 protected:
     void setupToolBar();
@@ -35,6 +37,7 @@ private:
      QLabel *fontLabel;
      QLabel *sizeLabel;
      QString root;
+     QVector<QString> names;
 };
 
 #endif // FLASHCARDEDITWIDGET_H

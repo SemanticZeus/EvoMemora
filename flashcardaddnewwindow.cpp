@@ -1,15 +1,14 @@
 #include "flashcardaddnewwindow.h"
-
-
 #include "flashcardeditwindow.h"
 
-FlashCardAddNewWindow::FlashCardAddNewWindow(QWidget *parent) : QWidget(parent)
+FlashCardAddNewWindow::FlashCardAddNewWindow(FlashcardManager *flashcardManager, QWidget *parent) : QWidget(parent)
 {
+    this->flashcardManager = flashcardManager;
     flashCardEditWidget = new FlashCardEditWidget;
     setupToolBar();
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(mainToolBar);
+    //mainLayout->addWidget(mainToolBar);
     mainLayout->addWidget(flashCardEditWidget);
     this->setLayout(mainLayout);
 }
@@ -20,19 +19,9 @@ void FlashCardAddNewWindow::setRoot(QString root)
     flashCardEditWidget->setRoot(root);
 }
 
-void FlashCardAddNewWindow::closeEvent(QCloseEvent *event)
-{
-    emit newFlashcardsAdded();
-}
-
 QString FlashCardAddNewWindow::getRoot()
 {
     return root;
-}
-
-QVector<QString> &FlashCardAddNewWindow::getNames()
-{
-    return names;
 }
 
 void FlashCardAddNewWindow::setupToolBar()
@@ -43,20 +32,19 @@ void FlashCardAddNewWindow::setupToolBar()
     //saveToolBar->addWidget(spacer);
     mainToolBar->setObjectName("FlashCardAddNewToolBar");
 
-     QAction *addAction = new QAction("Add FlashCard", this);
+     addAction = new QAction("Add FlashCard", this);
      connect(addAction, &QAction::triggered, [&]() {
          flashCardEditWidget->save();
-         names.append(flashCardEditWidget->getName());
+         //names.append(flashCardEditWidget->getName());
+         flashcardManager->addFlashCard(flashCardEditWidget->getName());
          flashCardEditWidget->clear();
          flashCardEditWidget->setRoot(root);
      });
-     mainToolBar->addAction(addAction);
-
-     QAction *closeAction = new QAction("Close", this);
-     connect(closeAction, &QAction::triggered, [&]() {
+     homeAction = new QAction("Home", this);
+     connect(homeAction, &QAction::triggered, [&]() {
          flashCardEditWidget->clear();
-         this->close();
-         emit newFlashcardsAdded();
+         emit homeActionTriggered();
      });
-     mainToolBar->addAction(closeAction);
+     mainToolBar->addAction(homeAction);
+     mainToolBar->addAction(addAction);
 }
