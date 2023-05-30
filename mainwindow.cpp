@@ -44,6 +44,10 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(flashCardEditWindow, &FlashCardEditWindow::updateView,
             flashCardViewWidget->getFlashCardView(), &FlashCardView::reloadFlashCard);
+    connect(flashCardViewWidget, &FlashCardViewWidget::editActionTriggered, [&](){
+        flashCardViewWidget->getToolBar()->hide();
+
+    });
 }
 
 MainWindow::~MainWindow()

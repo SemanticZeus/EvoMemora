@@ -44,11 +44,62 @@ struct FlashCardManagerFlashCard {
         return nearestPowerOf2;
     }
 
+    QString message()
+    {
+        QDateTime currentDateTime = QDateTime::currentDateTime();
+        int seconds = prevDueDate.secsTo(currentDateTime);
+        if (seconds < 60)
+            return QString::number(seconds) + " second" + (seconds > 1 ? "s" : "") + " ago";
+
+        int minutes = seconds / 60;
+        if (minutes < 60)
+        {
+            int remainingSeconds = seconds % 60;
+            return QString::number(minutes) + " minute" + (minutes > 1 ? "s" : "") + " and " +
+                   QString::number(remainingSeconds) + " second" + (remainingSeconds > 1 ? "s" : "") + " ago";
+        }
+
+        int hours = minutes / 60;
+        if (hours < 24)
+        {
+            int remainingMinutes = minutes % 60;
+            return QString::number(hours) + " hour" + (hours > 1 ? "s" : "") + " and " +
+                   QString::number(remainingMinutes) + " minute" + (remainingMinutes > 1 ? "s" : "") + " ago";
+        }
+
+        int days = hours / 24;
+        int remainingHours = hours % 24;
+
+        if (days < 30)
+            {
+                return QString::number(days) + " day" + (days > 1 ? "s" : "") + " and " +
+                       QString::number(remainingHours) + " hour" + (remainingHours > 1 ? "s" : "") + " ago";
+            }
+
+            int months = days / 30;
+            int remainingDays = days % 30;
+
+            if (months < 12)
+            {
+                return QString::number(months) + " month" + (months > 1 ? "s" : "") + ", " +
+                       QString::number(remainingDays) + " day" + (remainingDays > 1 ? "s" : "") + " and " +
+                       QString::number(remainingHours) + " hour" + (remainingHours > 1 ? "s" : "") + " ago";
+            }
+
+            int years = months / 12;
+            int remainingMonths = months % 12;
+
+            return QString::number(years) + " year" + (years > 1 ? "s" : "") + ", " +
+                   QString::number(remainingMonths) + " month" + (remainingMonths > 1 ? "s" : "") + ", " +
+                   QString::number(remainingDays) + " day" + (remainingDays > 1 ? "s" : "") + ", " +
+                   QString::number(remainingHours) + " hour" + (remainingHours > 1 ? "s" : "") + " ago";
+    }
+
     QString name;
     QDateTime nextDueDate;
     QDateTime prevDueDate;
 };
-
+//
 class FlashcardManager
 {
 public:

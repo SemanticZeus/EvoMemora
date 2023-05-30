@@ -9,10 +9,18 @@ FlashCardViewWidget::FlashCardViewWidget(FlashcardManager *flashcardManager, QWi
     scrollArea->setWidget(flashCardView);
     messageLabel = new QLabel;
     messageLabel->setText("No message");
+    messageLabel->setFixedHeight(100);
+    QFont font;
+    font.setPointSize(19);
+    messageLabel->setFont(font);
     QVBoxLayout *mainLayout = new QVBoxLayout;
     QHBoxLayout *mainHorizontalLayout = new QHBoxLayout;
     listWidget = new QListWidget;
-    listWidget->setFixedWidth(150);
+    listWidget->setFixedWidth(210);
+    connect(listWidget, &QListWidget::itemClicked, [&](QListWidgetItem *item){
+        currentIndex = listWidget->row(item);
+        loadCurrentFlashCard();
+    });
     QVBoxLayout *buttonsLayout = new QVBoxLayout;
     setupReviewButtons(buttonsLayout);
 
@@ -36,6 +44,8 @@ void FlashCardViewWidget::loadCurrentFlashCard()
     }
     auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
     flashCardView->loadFlashCard(flashcardManager->getRoot(), f.name);
+    listWidget->setCurrentRow(currentIndex);
+    messageLabel->setText("You reviewed this flashcard, " + f.message());
 }
 
 void FlashCardViewWidget::loadOverDueFlashcards()
@@ -49,6 +59,22 @@ void FlashCardViewWidget::loadOverDueFlashcards()
         if (flashcardManager->getFlashCardList()[i].isShowTime()) flashCardsIndex.push_back(i);
     }
     loadCurrentFlashCard();
+    loadFlashCardThumbnails();
+}
+
+void FlashCardViewWidget::loadFlashCardThumbnails()
+{
+    listWidget->clear();
+    for (int i=0;i<flashCardsIndex.count();i++) {
+        auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[i]];
+        QString path = QFileInfo(flashcardManager->getRoot(), f.name).absoluteFilePath();
+        QString thumbnail_path = QFileInfo(path, "front.jpg").absoluteFilePath();
+        QListWidgetItem *thumbnail = new QListWidgetItem(listWidget);
+        thumbnail->setSizeHint(QSize(200, 160));
+        ThumbnailItemWidget *thumbnailItemWidget = new ThumbnailItemWidget(thumbnail_path);
+        thumbnailItemWidget->setFixedSize(190, 150);
+        listWidget->setItemWidget(thumbnail, thumbnailItemWidget);
+    }
 }
 
 void FlashCardViewWidget::setupReviewButtons(QVBoxLayout *buttonsLayout)

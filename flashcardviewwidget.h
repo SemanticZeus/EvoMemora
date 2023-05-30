@@ -6,22 +6,30 @@
 
 class ThumbnailItemWidget : public QWidget {
 public:
-    ThumbnailItemWidget(const QPixmap& thumbnail, const QString& text, QWidget* parent = nullptr)
+    ThumbnailItemWidget(const QString& thumbnailPath, QWidget* parent = nullptr)
         : QWidget(parent)
     {
-        QVBoxLayout* layout = new QVBoxLayout(this);
-        QLabel* thumbnailLabel = new QLabel(this);
-        QLabel* textLabel = new QLabel(text, this);
+        QHBoxLayout* layout = new QHBoxLayout(this);
 
-        thumbnailLabel->setPixmap(thumbnail.scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        // Create a QLabel for the thumbnail
+        thumbnailLabel = new QLabel(this);
+        thumbnail.load(thumbnailPath);
+        thumbnailLabel->setPixmap(thumbnail);
 
+        // Add the thumbnail label to the layout
         layout->addWidget(thumbnailLabel);
-        layout->addWidget(textLabel);
-        layout->setContentsMargins(5, 5, 5, 5);
-        layout->setSpacing(5);
-
-        setLayout(layout);
     }
+
+protected:
+    void resizeEvent(QResizeEvent *event) {
+        QSize size = event->size();
+        QPixmap pix = thumbnail.scaled(size,Qt::KeepAspectRatio);
+        thumbnailLabel->setPixmap(pix);
+    }
+
+private:
+    QPixmap thumbnail;
+    QLabel* thumbnailLabel;
 };
 
 class FlashCardViewWidget : public QWidget
@@ -45,6 +53,7 @@ protected:
     void setupReviewButtons(QVBoxLayout *btnsLayout);
     void loadCurrentFlashCard();
     void loadOverDueFlashcards();
+    void loadFlashCardThumbnails();
 
 protected slots:
     void nextActionTriggered();

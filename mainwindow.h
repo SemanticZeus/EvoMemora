@@ -39,6 +39,7 @@ private:
     FlashCardView *flashCardView;
     FlashCardAddNewWindow *flashCardAddNewWindow;
     FlashCardEditWindow *flashCardEditWindow;
+    FlashCardEditWidget *flashCardEditWidget;
     FlashCardViewWidget *flashCardViewWidget;
     QString flashCardPath;
     QPushButton *nextButton;
