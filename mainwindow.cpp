@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     stackedWidget->addWidget(homeWidget);
     stackedWidget->addWidget(flashCardViewWidget);
     stackedWidget->addWidget(flashCardAddNewWindow);
+    stackedWidget->addWidget(flashCardEditWindow);
     setCentralWidget(stackedWidget);
 
 
@@ -44,9 +45,14 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(flashCardEditWindow, &FlashCardEditWindow::updateView,
             flashCardViewWidget->getFlashCardView(), &FlashCardView::reloadFlashCard);
-    connect(flashCardViewWidget, &FlashCardViewWidget::editActionTriggered, [&](){
-        flashCardViewWidget->getToolBar()->hide();
 
+    connect(flashCardViewWidget, &FlashCardViewWidget::editActionTriggered, [&](){
+        auto root = flashCardViewWidget->getFlashCardView()->getRoot();
+        auto flashcard = flashCardViewWidget->getFlashCardView()->getName();
+        QString path = QFileInfo(root, flashcard).absoluteFilePath();
+        flashCardViewWidget->getToolBar()->hide();
+        stackedWidget->setCurrentWidget(flashCardEditWindow);
+        flashCardEditWindow->loadFlashCard(flashCardViewWidget->getFlashCardView()->getFlashCard());
     });
 }
 

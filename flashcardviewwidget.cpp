@@ -45,7 +45,7 @@ void FlashCardViewWidget::loadCurrentFlashCard()
     auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
     flashCardView->loadFlashCard(flashcardManager->getRoot(), f.name);
     listWidget->setCurrentRow(currentIndex);
-    messageLabel->setText("You reviewed this flashcard, " + f.message());
+    messageLabel->setText("You reviewed this flashcard " + f.message());
 }
 
 void FlashCardViewWidget::loadOverDueFlashcards()
