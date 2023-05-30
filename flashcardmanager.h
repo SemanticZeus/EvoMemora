@@ -99,7 +99,7 @@ struct FlashCardManagerFlashCard {
     QDateTime nextDueDate;
     QDateTime prevDueDate;
 };
-//
+
 class FlashcardManager
 {
 public:

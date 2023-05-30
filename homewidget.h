@@ -11,7 +11,6 @@ public:
     QPushButton *viewAllFlashcardsButton;
     QPushButton *addNewFlashcardsButton;
     QPushButton *reviewFlashcardsButton;
-    QPushButton *reviewAnsweredFlashcardsButton;
 };
 
 #endif // HOMEWIDGET_H

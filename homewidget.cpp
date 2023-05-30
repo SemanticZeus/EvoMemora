@@ -56,11 +56,9 @@ HomeWidget::HomeWidget(QWidget *parent) : QWidget(parent)
     viewAllFlashcardsButton = new SquareButton("View All FlashCards");
     addNewFlashcardsButton = new SquareButton("Add a New FlashCard");
     reviewFlashcardsButton = new SquareButton("Review Todays FlashCards");
-    reviewAnsweredFlashcardsButton = new SquareButton("Review Flashcards Already Answered Correctly");
     QGridLayout * mainLayout = new QGridLayout;
     mainLayout->addWidget(reviewFlashcardsButton, 0, 0);
     mainLayout->addWidget(addNewFlashcardsButton, 0, 1);
-    mainLayout->addWidget(reviewAnsweredFlashcardsButton, 1,0);
-    mainLayout->addWidget(viewAllFlashcardsButton, 1, 1);
+    mainLayout->addWidget(viewAllFlashcardsButton, 1, 0);
     setLayout(mainLayout);
 }
