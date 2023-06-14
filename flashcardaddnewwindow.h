@@ -21,6 +21,8 @@ protected:
     void setupToolBar();
 
 private:
+    QStackedWidget *mainStackedWidget;
+    SnapShotWidget *snapShotWidget;
     FlashCardEditWidget *flashCardEditWidget;
     QToolBar *mainToolBar;
     QString root;

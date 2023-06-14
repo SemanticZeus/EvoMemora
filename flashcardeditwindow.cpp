@@ -23,14 +23,13 @@ void FlashCardEditWindow::setupToolBar()
      connect(saveAction, &QAction::triggered, [&]() {
          flashCardEditWidget->save();
          emit updateView();
-         this->close();
      });
      saveToolBar->addAction(saveAction);
 
      QAction *cancelAction = new QAction("Cancel", this);
      connect(cancelAction, &QAction::triggered, [&]() {
          flashCardEditWidget->clear();
-         this->close();
+         emit cancel();
      });
      saveToolBar->addAction(cancelAction);
 }

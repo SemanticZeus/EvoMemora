@@ -54,6 +54,16 @@ MainWindow::MainWindow(QWidget *parent)
         stackedWidget->setCurrentWidget(flashCardEditWindow);
         flashCardEditWindow->loadFlashCard(flashCardViewWidget->getFlashCardView()->getFlashCard());
     });
+
+    connect(flashCardEditWindow, &FlashCardEditWindow::updateView, [&](){
+        flashCardViewWidget->getToolBar()->show();
+        stackedWidget->setCurrentWidget(flashCardViewWidget);
+
+    });
+    connect(flashCardEditWindow, &FlashCardEditWindow::cancel, [&](){
+        flashCardViewWidget->getToolBar()->show();
+        stackedWidget->setCurrentWidget(flashCardViewWidget);
+    });
 }
 
 MainWindow::~MainWindow()

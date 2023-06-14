@@ -213,7 +213,7 @@ void FlashCardEdit::addText()
     if (!row) return;
     TextWidget *textEdit = new TextWidget;
     QTextOption textOption = textEdit->document()->defaultTextOption();
-    textOption.setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    //textOption.setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     textEdit->document()->setDefaultTextOption(textOption);
 
 

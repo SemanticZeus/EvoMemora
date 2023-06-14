@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/Icon">
+        <file>resources/icons8-memory-64.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>resources/icons8-smartphone-ram-100.png</file>
+        <file>resources/icons8-smartphone-ram-64.png</file>
+    </qresource>
+</RCC>

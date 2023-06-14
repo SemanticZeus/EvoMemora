@@ -14,6 +14,7 @@ public:
 
 signals:
     void updateView();
+    void cancel();
 
 protected:
     void setupToolBar();
