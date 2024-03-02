@@ -74,7 +74,7 @@ bool FlashCard::loadFlashCard(QString n)
 
     while (!reader.atEnd() && !reader.hasError()) {
         if (reader.readNextStartElement()) {
-            if (reader.name() != "flashcard") {
+            if (reader.name() != QStringLiteral("flashcard")) {
                 qDebug() << "error reading flashcard" << reader.name();
                 return false;
             }

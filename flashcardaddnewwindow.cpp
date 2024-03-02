@@ -33,7 +33,7 @@ void FlashCardAddNewWindow::setupToolBar()
     mainToolBar->setObjectName("FlashCardAddNewToolBar");
 
      addAction = new QAction("Add FlashCard", this);
-     connect(addAction, &QAction::triggered, [&]() {
+     connect(addAction, &QAction::triggered, this, [&]() {
          flashCardEditWidget->save();
          //names.append(flashCardEditWidget->getName());
          flashcardManager->addFlashCard(flashCardEditWidget->getName());
@@ -41,7 +41,7 @@ void FlashCardAddNewWindow::setupToolBar()
          flashCardEditWidget->setRoot(root);
      });
      homeAction = new QAction("Home", this);
-     connect(homeAction, &QAction::triggered, [&]() {
+     connect(homeAction, &QAction::triggered, this, [&]() {
          flashCardEditWidget->clear();
          emit homeActionTriggered();
      });

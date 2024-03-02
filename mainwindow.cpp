@@ -26,27 +26,27 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(stackedWidget);
 
 
-    connect(homeWidget->reviewFlashcardsButton, &QPushButton::released, [&]() {
+    connect(homeWidget->reviewFlashcardsButton, &QPushButton::released, this, [&]() {
         flashCardViewWidget->getToolBar()->show();
         stackedWidget->setCurrentWidget(flashCardViewWidget);
     });
-    connect(flashCardViewWidget, &FlashCardViewWidget::homeActionTriggered, [&](){
+    connect(flashCardViewWidget, &FlashCardViewWidget::homeActionTriggered, this, [&](){
        flashCardViewWidget->getToolBar()->hide();
        stackedWidget->setCurrentWidget(homeWidget);
     });
-    connect(homeWidget->addNewFlashcardsButton, &QPushButton::released, [&]() {
+    connect(homeWidget->addNewFlashcardsButton, &QPushButton::released, this, [&]() {
         flashCardAddNewWindow->getToolBar()->show();
         flashCardAddNewWindow->setRoot(flashCardPath);
         stackedWidget->setCurrentWidget(flashCardAddNewWindow);
     });
-    connect(flashCardAddNewWindow, &FlashCardAddNewWindow::homeActionTriggered, [&](){
+    connect(flashCardAddNewWindow, &FlashCardAddNewWindow::homeActionTriggered, this, [&](){
        flashCardAddNewWindow->getToolBar()->hide();
        stackedWidget->setCurrentWidget(homeWidget);
     });
     connect(flashCardEditWindow, &FlashCardEditWindow::updateView,
             flashCardViewWidget->getFlashCardView(), &FlashCardView::reloadFlashCard);
 
-    connect(flashCardViewWidget, &FlashCardViewWidget::editActionTriggered, [&](){
+    connect(flashCardViewWidget, &FlashCardViewWidget::editActionTriggered, this, [&](){
         auto root = flashCardViewWidget->getFlashCardView()->getRoot();
         auto flashcard = flashCardViewWidget->getFlashCardView()->getName();
         QString path = QFileInfo(root, flashcard).absoluteFilePath();
@@ -55,12 +55,12 @@ MainWindow::MainWindow(QWidget *parent)
         flashCardEditWindow->loadFlashCard(flashCardViewWidget->getFlashCardView()->getFlashCard());
     });
 
-    connect(flashCardEditWindow, &FlashCardEditWindow::updateView, [&](){
+    connect(flashCardEditWindow, &FlashCardEditWindow::updateView, this, [&](){
         flashCardViewWidget->getToolBar()->show();
         stackedWidget->setCurrentWidget(flashCardViewWidget);
 
     });
-    connect(flashCardEditWindow, &FlashCardEditWindow::cancel, [&](){
+    connect(flashCardEditWindow, &FlashCardEditWindow::cancel, this, [&](){
         flashCardViewWidget->getToolBar()->show();
         stackedWidget->setCurrentWidget(flashCardViewWidget);
     });
@@ -79,12 +79,12 @@ void MainWindow::setupMenu()
     QMenu* fileMenu = menuBar->addMenu("File");
     QAction* openAction = new QAction("Open FlashCards Folder", this);
     QAction *exitAction = new QAction("Exit", this);
-    exitAction->setShortcut(Qt::CTRL + Qt::Key_Q);
+    exitAction->setShortcut(Qt::CTRL | Qt::Key_Q);
     connect(exitAction, &QAction::triggered, this, &MainWindow::close);
     connect(openAction, &QAction::triggered, this, &MainWindow::openAction);
 
     QAction* editFlashCardAction = new QAction("Edit Current FlashCard", this);
-    connect(editFlashCardAction, &QAction::triggered, [&]() {
+    connect(editFlashCardAction, &QAction::triggered, this, [&]() {
        flashCardEditWindow->show();
        flashCardEditWindow->raise();
        flashCardEditWindow->loadFlashCard(flashCardView->getFlashCard());

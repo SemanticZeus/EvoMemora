@@ -176,7 +176,7 @@ void FlashCardEdit::takeSnapShot()
 {
     if (!snapShotWidget) {
         snapShotWidget = new SnapShotWidget;
-        connect(snapShotWidget, &SnapShotWidget::accepted, [=]() {
+        connect(snapShotWidget, &SnapShotWidget::accepted, this, [=]() {
             QSplitter *splitter = (QSplitter *) this->currentWidget();
             RowWidget *row = nullptr;
             for (int i=0;i<splitter->count();i++) {

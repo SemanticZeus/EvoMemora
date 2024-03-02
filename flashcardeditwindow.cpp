@@ -20,14 +20,14 @@ void FlashCardEditWindow::setupToolBar()
     saveToolBar->setObjectName("FlashCardEditWidgetSaveToolBar");
 
      QAction *saveAction = new QAction("Save FlashCard", this);
-     connect(saveAction, &QAction::triggered, [&]() {
+     connect(saveAction, &QAction::triggered, this, [&]() {
          flashCardEditWidget->save();
          emit updateView();
      });
      saveToolBar->addAction(saveAction);
 
      QAction *cancelAction = new QAction("Cancel", this);
-     connect(cancelAction, &QAction::triggered, [&]() {
+     connect(cancelAction, &QAction::triggered, this, [&]() {
          flashCardEditWidget->clear();
          emit cancel();
      });

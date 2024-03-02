@@ -24,6 +24,7 @@ void FlashCardEditWidget::loadFlashCard(FlashCard f)
 
 void FlashCardEditWidget::closeEvent(QCloseEvent *event)
 {
+    Q_UNUSED(event);
     emit updateView();
 }
 
@@ -36,7 +37,7 @@ QToolBar *FlashCardEditWidget::makeToolBar()
     mainToolBar->setObjectName("FlashCardAddNewToolBar");
 
      QAction *addAction = new QAction("Add FlashCard", this);
-     connect(addAction, &QAction::triggered, [&]() {
+     connect(addAction, &QAction::triggered, this, [&]() {
          this->save();
          names.append(this->getName());
          this->clear();
@@ -45,7 +46,7 @@ QToolBar *FlashCardEditWidget::makeToolBar()
      mainToolBar->addAction(addAction);
 
      QAction *closeAction = new QAction("Close", this);
-     connect(closeAction, &QAction::triggered, [&]() {
+     connect(closeAction, &QAction::triggered, this, [&]() {
          this->clear();
          this->close();
          emit newFlashcardsAdded();
@@ -61,26 +62,26 @@ void FlashCardEditWidget::setupToolBar()
     toolBar->setObjectName("FlashCardEditWidgetToolBar");
 
      QAction *addRowAction = new QAction("Add New Row", this);
-     connect(addRowAction, &QAction::triggered, [&]() {
+     connect(addRowAction, &QAction::triggered, this, [&]() {
          flashCardEdit->addNewRow();
      });
      toolBar->addAction(addRowAction);
 
      QAction *removeRowAction = new QAction("Remove Current Row", this);
-     connect(removeRowAction, &QAction::triggered, [&](){
+     connect(removeRowAction, &QAction::triggered, this, [&](){
          flashCardEdit->removeCurrentRow();
      });
 
      toolBar->addAction(removeRowAction);
 
      QAction *addTextAction = new QAction("Add Text", this);
-     connect(addTextAction, &QAction::triggered, [&]() {
+     connect(addTextAction, &QAction::triggered, this, [&]() {
         flashCardEdit->addText();
      });
      toolBar->addAction(addTextAction);
 
      QAction *addImageAction = new QAction("Add Image", this);
-     connect(addImageAction, &QAction::triggered, [&]() {
+     connect(addImageAction, &QAction::triggered, this, [&]() {
          flashCardEdit->takeSnapShot();
      });
      toolBar->addAction(addImageAction);

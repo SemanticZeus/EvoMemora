@@ -94,7 +94,7 @@ void FlashcardManager::readDatabase()
         return;
     }
     QXmlStreamReader reader(&file);
-    if (!reader.readNextStartElement() || reader.name() != "EvoMemora") {
+    if (!reader.readNextStartElement() || reader.name() != QStringLiteral("EvoMemora")) {
         qDebug() << "Error reading the database file. ";
         return;
     }
@@ -104,7 +104,7 @@ void FlashcardManager::readDatabase()
 
     while (!reader.atEnd() && !reader.hasError()) {
         if (reader.readNextStartElement()) {
-            if (reader.name() == "flashcard") {
+            if (reader.name() == QStringLiteral("flashcard")) {
                 QString cardName = reader.attributes().value("name").toString();
                 FlashCardManagerFlashCard flashcard(cardName);
                 flashcard.prevDueDate = QDateTime::fromString(reader.attributes().value("previousDueDate").toString());

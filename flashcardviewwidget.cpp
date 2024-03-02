@@ -17,7 +17,7 @@ FlashCardViewWidget::FlashCardViewWidget(FlashcardManager *flashcardManager, QWi
     QHBoxLayout *mainHorizontalLayout = new QHBoxLayout;
     listWidget = new QListWidget;
     listWidget->setFixedWidth(210);
-    connect(listWidget, &QListWidget::itemClicked, [&](QListWidgetItem *item){
+    connect(listWidget, &QListWidget::itemClicked, this, [&](QListWidgetItem *item){
         currentIndex = listWidget->row(item);
         loadCurrentFlashCard();
     });
@@ -128,97 +128,97 @@ void FlashCardViewWidget::setupReviewButtons(QVBoxLayout *buttonsLayout)
     reviewIn3month->setFixedSize(150, 40);
     reviewIn6month->setFixedSize(150, 40);
     reviewIn1year->setFixedSize(150, 40);
-    connect(reviewIn1min, &QPushButton::released, [&](){
+    connect(reviewIn1min, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInSecs(60);
         messageLabel->setText("you will review this flashcard in 1 min");
     });
-    connect(reviewIn10min, &QPushButton::released, [&](){
+    connect(reviewIn10min, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInSecs(600);
         messageLabel->setText("you will review this flashcard in 10 min");
     });
-    connect(reviewIn1hour, &QPushButton::released, [&](){
+    connect(reviewIn1hour, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInSecs(60*60);
         messageLabel->setText("you will review this flashcard in 1 hour");
     });
-    connect(reviewIn6hour, &QPushButton::released, [&](){
+    connect(reviewIn6hour, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInSecs(6*60*60);
         messageLabel->setText("you will review this flashcard in 6 hours");
     });
-    connect(reviewIn12hour, &QPushButton::released, [&](){
+    connect(reviewIn12hour, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInSecs(12*60*60);
         messageLabel->setText("you will review this flashcard in 12 hours");
     });
-    connect(reviewIn1day, &QPushButton::released, [&](){
+    connect(reviewIn1day, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(1);
         messageLabel->setText("you will review this flashcard in 1 day");
     });
-    connect(reviewIn2days, &QPushButton::released, [&](){
+    connect(reviewIn2days, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(2);
         messageLabel->setText("you will review this flashcard in 2 days");
     });
-    connect(reviewIn3days, &QPushButton::released, [&](){
+    connect(reviewIn3days, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(3);
         messageLabel->setText("you will review this flashcard in 3 days");
     });
-    connect(reviewIn5days, &QPushButton::released, [&](){
+    connect(reviewIn5days, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(5);
         messageLabel->setText("you will review this flashcard in 5 days");
     });
-    connect(reviewIn1week, &QPushButton::released, [&](){
+    connect(reviewIn1week, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(7);
         messageLabel->setText("you will review this flashcard in 1 week");
     });
-    connect(reviewIn2week, &QPushButton::released, [&](){
+    connect(reviewIn2week, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(14);
         messageLabel->setText("you will review this flashcard in 2 week");
     });
-    connect(reviewIn1month, &QPushButton::released, [&](){
+    connect(reviewIn1month, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(30);
         messageLabel->setText("you will review this flashcard in 1 month");
     });
-    connect(reviewIn2month, &QPushButton::released, [&](){
+    connect(reviewIn2month, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(60);
         messageLabel->setText("you will review this flashcard in 2 month");
     });
-    connect(reviewIn3month, &QPushButton::released, [&](){
+    connect(reviewIn3month, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(3*30);
         messageLabel->setText("you will review this flashcard in 3 month");
     });
-    connect(reviewIn6month, &QPushButton::released, [&](){
+    connect(reviewIn6month, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(6*30);
         messageLabel->setText("you will review this flashcard in 6 month");
     });
-    connect(reviewIn1year, &QPushButton::released, [&](){
+    connect(reviewIn1year, &QPushButton::released, this, [&](){
         if (flashCardsIndex.count()==0) return;
         auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
         f.updateNextDueDateInDays(365);
@@ -269,7 +269,7 @@ void FlashCardViewWidget::setupToolBar()
     connect(editAction, &QAction::triggered, this, &FlashCardViewWidget::editActionTriggered);
     connect(previousAction, &QAction::triggered, this, &FlashCardViewWidget::previousActionTriggered);
     connect(nextAction, &QAction::triggered, this, &FlashCardViewWidget::nextActionTriggered);
-    connect(updateFlashcardListAction, &QAction::triggered, [&](){this->loadOverDueFlashcards();});
+    connect(updateFlashcardListAction, &QAction::triggered, this, [&](){this->loadOverDueFlashcards();});
 }
 
 QToolBar *FlashCardViewWidget::getToolBar()
