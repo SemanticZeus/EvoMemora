@@ -1,5 +1,7 @@
 #include <QApplication>
 #include "mainwindow.h"
+#include <QSysInfo>
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
@@ -10,5 +12,6 @@ int main(int argc, char *argv[])
     app.setWindowIcon(icon);
     MainWindow w;
     w.show();
+    qDebug() << QString("flashcard_") + QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss") + "_" + QSysInfo::machineHostName().replace(".", "_");
     return app.exec();
 }

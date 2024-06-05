@@ -11,6 +11,12 @@ FlashcardManager::FlashcardManager(QString root, QString databaseName)
 
 void FlashcardManager::makeNewDatabaseIfNotValid()
 {
+    if (!QDir(root).exists()) {
+        root = "";
+        databaseName = "";
+        QMessageBox::warning(nullptr, "Can not Open the Folder.", "Error, Cannot Open the Folder", QMessageBox::Abort);
+        return;
+    }
     QString filename = QFileInfo(root, databaseName).absoluteFilePath();
     QFile file(filename);
     if (file.exists()) return;

@@ -5,6 +5,7 @@ FlashCard::FlashCard()
     size = QSize(900, 700);
 }
 
+/*
 QString FlashCard::generateName()
 {
     if (root=="") return "";
@@ -26,6 +27,13 @@ QString FlashCard::generateName()
         }
         ++number;
     }
+}
+*/
+
+QString FlashCard::generateName()
+{
+    if (root=="") return "";
+    return QString("flashcard_") + QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss") + "_" + QSysInfo::machineHostName().replace(".", "_");
 }
 
 void FlashCard::removeRow(int face, int r)
