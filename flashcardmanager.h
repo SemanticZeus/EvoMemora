@@ -2,6 +2,11 @@
 #define FLASHCARDMANAGER_H
 
 #include <QtWidgets>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QHttpMultiPart>
+#include <QtNetwork/QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
+#include <QMessageBox>
 #include <cmath>
 
 struct FlashCardManagerFlashCard {
@@ -109,17 +114,33 @@ public:
     int countDueDateFlashCards();
     void save();
     void reset();
+    void sync();
     QString getRoot() { return root; }
+
+    void uploadFlashcard(const QString& name);
+    void downloadFlashcard(const QString& name);
+    void uploadFile(const QString &filename);
+    void downloadFile(const QString &filename);
 
 protected:
     void readDatabase();
+    QList<FlashCardManagerFlashCard> readDatabase(const QString &root, const QString &databaseName);
     void makeNewDatabaseIfNotValid();
     void readDatabse();
+
+    void upload(const QString &root, const QString& filename);
+    void download(const QString &root, const QString &foldername, const QString& filename);
+    void upload_folder(const QString& root, const QString& foldername);
+    void download_folder(const QString& root, const QString& foldername);
+    QHttpMultiPart *make_header(QString username, QString password, QString command);
+    QStringList folder_list(const QString& foldername);
 
 private:
     QList<FlashCardManagerFlashCard> flashcardList;
     QString root;
     QString databaseName;
+    QNetworkRequest request;
+    QNetworkAccessManager manager;
 };
 
 #endif // FLASHCARDMANAGER_H

@@ -1,0 +1,46 @@
+*.user
+
+credentials.h
+credentials.h
+
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE folders
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Compiled binary and build folders
+*.o
+*.exe
+*.dll
+*.class
+/bin/
+/out/
+/build/
+/dist/
+
+# Dependency directories
+node_modules/
+bower_components/
+jspm_packages/
+venv/
+pods/
+
+# Logs and databases
+*.log
+*.sql
+*.db
+
+# Configuration files containing sensitive information
+*.env
+config.json
+
+# User-specific files
+*.suo
+*.user
+*.swp
+

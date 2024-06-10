@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,6 +31,7 @@ SOURCES += \
     textwidget.cpp
 
 HEADERS += \
+    credentials.h \
     flashcard.h \
     flashcardaddnewwindow.h \
     flashcardedit.h \

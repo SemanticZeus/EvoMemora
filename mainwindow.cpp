@@ -65,6 +65,9 @@ MainWindow::MainWindow(QWidget *parent)
         flashCardViewWidget->getToolBar()->show();
         stackedWidget->setCurrentWidget(flashCardViewWidget);
     });
+    connect(homeWidget->syncFlashcardsButton, &QPushButton::released, this, [&]() {
+        flashcardManager->sync();
+    });
 }
 
 MainWindow::~MainWindow()
