@@ -132,6 +132,7 @@ protected:
 
     void upload(const QString &root, const QString& filename);
     void download(const QString &root, const QString &foldername, const QString& filename);
+    void download_timestamps();
     void upload_folder(const QString& root, const QString& foldername);
     void download_folder(const QString& root, const QString& foldername);
     QHttpMultiPart *make_header(QString username, QString password, QString command);

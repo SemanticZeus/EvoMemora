@@ -152,6 +152,7 @@ QList<FlashCardManagerFlashCard> FlashcardManager::readDatabase(const QString& r
         if (reader.readNextStartElement()) {
             if (reader.name() == QStringLiteral("flashcard")) {
                 QString cardName = reader.attributes().value("name").toString();
+                qDebug() << "cardname = " << cardName;
                 FlashCardManagerFlashCard flashcard(cardName);
                 flashcard.prevDueDate = QDateTime::fromString(reader.attributes().value("previousDueDate").toString());
                 flashcard.nextDueDate = QDateTime::fromString(reader.attributes().value("nextDueDate").toString());
@@ -182,7 +183,87 @@ void FlashcardManager::sync()
     updateModificationDate();
     QString tmpFolder = QDir(root).filePath("tmp");
     download(tmpFolder, "", "EvoMemora.rox");
+    download_timestamps();
     auto tmp_flashList = readDatabase(tmpFolder, "EvoMemora.rox");
+    for (const auto &f : tmp_flashList) {
+        bool new_flashcard = true;
+        for (const auto &ff : flashcardList) {
+            if (f.name == ff.name) {
+                new_flashcard = false;
+                break;
+            }
+        }
+        qDebug() << f.name;
+        if (new_flashcard) download_folder(root, f.name);
+    }
+    for (const auto &f : flashcardList) {
+        bool new_flashcard = true;
+        for (const auto &ff : tmp_flashList) {
+            if (f.name == ff.name) {
+                new_flashcard = false;
+                break;
+            }
+        }
+        qDebug() << f.name;
+        if (new_flashcard) {
+            upload_folder(root, f.name);
+            QThread::sleep(1);
+        }
+    }
+    QFile file(QDir(tmpFolder).filePath("timestamps.txt"));
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Cannot open file for reading:" << file.errorString();
+        return;
+    }
+
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList parts = line.split(QRegExp("\\s+"));
+        if (parts.size() != 2) {
+            qDebug() << "Invalid line format:" << line;
+            continue;
+        }
+        QString name = parts.at(0);
+        QString timestamp = parts.at(1);
+
+        // Process the name and timestamp as needed
+        qDebug() << "Name:" << name << ", Timestamp:" << timestamp;
+    }
+}
+
+void FlashcardManager::download_timestamps()
+{
+    auto multiPart = make_header(username, password, "download timestamps");
+
+    request.setUrl(url);
+    QNetworkReply *reply = manager.post(request, multiPart);
+    multiPart->setParent(reply);
+
+    QEventLoop loop;
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    QDir dir;
+    if (!dir.exists(QDir(root).filePath("tmp"))) {
+        dir.mkdir(QDir(root).filePath("tmp"));
+    }
+
+    QFile localFile(QDir(root).filePath("tmp/timestamps.txt"));
+    QString full_local_path = QDir(root).filePath("tmp/timestamps.txt");
+    qDebug() << full_local_path;
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    if (statusCode == 200 && localFile.open(QIODevice::WriteOnly)) {
+        localFile.write(reply->readAll());
+        localFile.close();
+        qDebug() << "Download successful, file written to downloaded_file";
+    } else if (statusCode!=200)
+        qDebug() << "Could not download the file";
+    else {
+        qDebug() << "Could not open file for writing.";
+    }
+    reply->deleteLater();
 }
 
 QHttpMultiPart* FlashcardManager::make_header(QString username, QString password, QString command)
@@ -231,7 +312,6 @@ void FlashcardManager::upload(const QString &root, const QString& filename)
     file->setParent(multiPart);
     multiPart->append(fileContent);
 
-    QUrl url("https://www.jamesaminian.com/evomemora/");
     request.setUrl(url);
     QNetworkReply *reply = manager.post(request, multiPart);
     multiPart->setParent(reply);
