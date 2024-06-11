@@ -33,7 +33,7 @@ QString FlashCard::generateName()
 QString FlashCard::generateName()
 {
     if (root=="") return "";
-    return QString("flashcard_") + QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss") + "_" + QSysInfo::machineHostName().replace(".", "_");
+    return QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss") + "_" + QSysInfo::machineHostName().replace(".", "_");
 }
 
 void FlashCard::removeRow(int face, int r)
@@ -157,6 +157,18 @@ void FlashCard::deleteImageFiles()
     }
 }
 
+
+QString FlashCard::getModificationDate()
+{
+    QString url = getAbsolutePath();
+    QFile modificationDateFile(QFileInfo(url, "modificationDate.txt").absoluteFilePath());
+    if (!modificationDateFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        return "";
+    QString date;
+    QTextStream{&modificationDateFile} >> date;
+    return date;
+}
+
 bool FlashCard::writeFlashCard()
 {
     QDir dir;
@@ -169,6 +181,13 @@ bool FlashCard::writeFlashCard()
         return false;
     deleteImageFiles();
     QString filename = QFileInfo(url, "flashcard.xml").absoluteFilePath();
+    QFile modificationDateFile(QFileInfo(url, "modificationDate.txt").absoluteFilePath());
+    if (!modificationDateFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug() << "Error could not open time stamp file";
+        return false;
+    }
+
+    QTextStream{&modificationDateFile} << QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss");
     QFile file(filename);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;

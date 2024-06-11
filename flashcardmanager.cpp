@@ -19,6 +19,25 @@ FlashcardManager::FlashcardManager(QString root, QString databaseName)
     readDatabase();
 }
 
+void FlashcardManager::updateModificationDate()
+{
+    if (root=="" || databaseName=="") return;
+    for (auto &f : flashcardList) {
+        QString date;
+        QString filename = QFileInfo(QDir(root).filePath(f.name), "modificationDate.txt").absoluteFilePath();
+        QFile file(filename);
+        if (!file.exists()) {
+            file.open(QIODevice::WriteOnly | QIODevice::Text);
+            date = QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss");
+            QTextStream(&file) << date;
+        } else {
+            file.open(QIODevice::ReadOnly | QIODevice::Text);
+            QTextStream(&file) >> date;
+        }
+        f.lastModification.fromString(date, "yyyy-MM-dd-HH-mm-ss");
+    }
+}
+
 
 void FlashcardManager::makeNewDatabaseIfNotValid()
 {
@@ -160,6 +179,7 @@ void FlashcardManager::sync()
         msg.exec();
         return;
     }
+    updateModificationDate();
     QString tmpFolder = QDir(root).filePath("tmp");
     download(tmpFolder, "", "EvoMemora.rox");
     auto tmp_flashList = readDatabase(tmpFolder, "EvoMemora.rox");

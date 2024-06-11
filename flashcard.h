@@ -38,6 +38,7 @@ public:
     void clear();
     auto getRows(int face) { return rows[face]; }
     QString getRoot() { return root; }
+    QString getModificationDate();
 
 protected:
     void addImage(int face, int row, QString name, QPixmap pixmap, int w, int h);

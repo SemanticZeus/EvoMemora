@@ -103,6 +103,7 @@ struct FlashCardManagerFlashCard {
     QString name;
     QDateTime nextDueDate;
     QDateTime prevDueDate;
+    QDateTime lastModification;
 };
 
 class FlashcardManager
@@ -121,6 +122,7 @@ public:
     void downloadFlashcard(const QString& name);
     void uploadFile(const QString &filename);
     void downloadFile(const QString &filename);
+    void updateModificationDate();
 
 protected:
     void readDatabase();
