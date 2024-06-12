@@ -66,7 +66,12 @@ MainWindow::MainWindow(QWidget *parent)
         stackedWidget->setCurrentWidget(flashCardViewWidget);
     });
     connect(homeWidget->syncFlashcardsButton, &QPushButton::released, this, [&]() {
+        this->setEnabled(false);
+        overlay = new BlurOverlay(homeWidget);
         flashcardManager->sync();
+        qDebug() << "after sync";
+        delete overlay;
+        this->setEnabled(true);
     });
 }
 

@@ -17,8 +17,9 @@ ImageWidget::ImageWidget(QPixmap p, int width, int height) {
 
 void ImageWidget::resizeEvent(QResizeEvent* event)
 {
-    pixmap = originalPixmap.scaled(event->size().width(), event->size().height()
-                                          ,Qt::KeepAspectRatio);
+    pixmap = originalPixmap.scaled(event->size().width(),
+                                   event->size().height(),
+                                   Qt::KeepAspectRatio);
     setPixmap(pixmap);
 }
 
