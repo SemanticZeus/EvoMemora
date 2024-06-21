@@ -8,9 +8,10 @@
 #include <QtNetwork/QNetworkReply>
 #include <QMessageBox>
 #include <cmath>
+#include <QMap>
 
 struct FlashCardManagerFlashCard {
-    FlashCardManagerFlashCard(QString name)
+    FlashCardManagerFlashCard(QString name="")
     {
         this->name = name;
         nextDueDate = QDateTime::currentDateTime();
@@ -111,7 +112,8 @@ class FlashcardManager
 public:
     FlashcardManager(QString root, QString databaseName);
     void addFlashCard(QString name);
-    QList<FlashCardManagerFlashCard>& getFlashCardList();
+    FlashCardManagerFlashCard& getFlashCardIndex(int i);
+    QList<QString>& getFlashcardNames() { return flashcardList; }
     int countDueDateFlashCards();
     void save();
     void reset();
@@ -126,7 +128,7 @@ public:
 
 protected:
     void readDatabase();
-    QList<FlashCardManagerFlashCard> readDatabase(const QString &root, const QString &databaseName);
+    QMap<QString, FlashCardManagerFlashCard> readDatabase(const QString &root, const QString &databaseName);
     void makeNewDatabaseIfNotValid();
     void readDatabse();
 
@@ -139,7 +141,8 @@ protected:
     QStringList folder_list(const QString& foldername);
 
 private:
-    QList<FlashCardManagerFlashCard> flashcardList;
+    QMap<QString, FlashCardManagerFlashCard> flashcardMap;
+    QList<QString> flashcardList;
     QString root;
     QString databaseName;
     QNetworkRequest request;

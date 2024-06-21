@@ -42,7 +42,7 @@ void FlashCardViewWidget::loadCurrentFlashCard()
         flashCardView->reset();
         return;
     }
-    auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
+    auto &f = flashcardManager->getFlashCardIndex(flashCardsIndex[currentIndex]);
     flashCardView->loadFlashCard(flashcardManager->getRoot(), f.name);
     listWidget->setCurrentRow(currentIndex);
     messageLabel->setText("You reviewed this flashcard " + f.message());
@@ -55,8 +55,8 @@ void FlashCardViewWidget::loadOverDueFlashcards()
     listWidget->clear();
     messageLabel->clear();
     flashCardView->reset();
-    for (int i=0;i<flashcardManager->getFlashCardList().count();i++) {
-        if (flashcardManager->getFlashCardList()[i].isShowTime()) flashCardsIndex.push_back(i);
+    for (int i=0;i<flashcardManager->getFlashcardNames().count();i++) {
+        if (flashcardManager->getFlashCardIndex(i).isShowTime()) flashCardsIndex.push_back(i);
     }
     loadCurrentFlashCard();
     loadFlashCardThumbnails();
@@ -66,7 +66,7 @@ void FlashCardViewWidget::loadFlashCardThumbnails()
 {
     listWidget->clear();
     for (int i=0;i<flashCardsIndex.count();i++) {
-        auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[i]];
+        auto &f = flashcardManager->getFlashCardIndex(flashCardsIndex[i]);
         QString path = QFileInfo(flashcardManager->getRoot(), f.name).absoluteFilePath();
         QString thumbnail_path = QFileInfo(path, "front.jpg").absoluteFilePath();
         QListWidgetItem *thumbnail = new QListWidgetItem(listWidget);
@@ -103,14 +103,13 @@ void FlashCardViewWidget::setupReviewButtons(QVBoxLayout *buttonsLayout)
         {"Review in 1 year", 31536000}
     };
 
-    // Create and connect all buttons in a loop
     for (auto &buttonInfo : buttons) {
         QPushButton *button = new QPushButton(buttonInfo.label, this);
         button->setFixedSize(150, 40);
         buttonsLayout->addWidget(button);
         connect(button, &QPushButton::released, this, [this, buttonInfo]() {
             if (flashCardsIndex.count() == 0) return;
-            auto &f = flashcardManager->getFlashCardList()[flashCardsIndex[currentIndex]];
+            auto &f = flashcardManager->getFlashCardIndex(flashCardsIndex[currentIndex]);
             f.updateNextDueDateInSecs(buttonInfo.delayInSeconds);
             QString message = "You will review this flashcard in " + buttonInfo.label;
             messageLabel->setText(message);

@@ -1,5 +1,7 @@
 #include "flashcard.h"
 
+constexpr auto DateTimeFormat = Qt::ISODate;
+
 FlashCard::FlashCard()
 {
     size = QSize(900, 700);
@@ -187,7 +189,7 @@ bool FlashCard::writeFlashCard()
         return false;
     }
 
-    QTextStream{&modificationDateFile} << QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss");
+    QTextStream{&modificationDateFile} << QDateTime::currentDateTime().toString(DateTimeFormat);
     QFile file(filename);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;

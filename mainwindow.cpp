@@ -69,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
         this->setEnabled(false);
         overlay = new BlurOverlay(homeWidget);
         flashcardManager->sync();
+        flashCardViewWidget->loadOverDueFlashcards();
         qDebug() << "after sync";
         delete overlay;
         this->setEnabled(true);

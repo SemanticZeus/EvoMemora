@@ -41,7 +41,7 @@ public:
     void setFlashcardManager(FlashcardManager *flashcardManager);
     QToolBar *getToolBar();
     FlashCardView* getFlashCardView() { return flashCardView; }
-
+    void loadOverDueFlashcards();
 signals:
     void homeActionTriggered();
     void editActionTriggered();
@@ -52,7 +52,6 @@ protected:
     void setupToolBar();
     void setupReviewButtons(QVBoxLayout *btnsLayout);
     void loadCurrentFlashCard();
-    void loadOverDueFlashcards();
     void loadFlashCardThumbnails();
 
 protected slots:

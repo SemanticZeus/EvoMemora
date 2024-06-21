@@ -12,6 +12,8 @@
 
 #include "credentials.h"
 
+constexpr auto DateTimeFormat = Qt::ISODate;
+
 FlashcardManager::FlashcardManager(QString root, QString databaseName)
 {
     this->root = root;
@@ -23,19 +25,19 @@ FlashcardManager::FlashcardManager(QString root, QString databaseName)
 void FlashcardManager::updateModificationDate()
 {
     if (root=="" || databaseName=="") return;
-    for (auto &f : flashcardList) {
+    for (auto &f : flashcardMap) {
         QString date;
         QString filename = QFileInfo(QDir(root).filePath(f.name), "modificationDate.txt").absoluteFilePath();
         QFile file(filename);
         if (!file.exists()) {
             file.open(QIODevice::WriteOnly | QIODevice::Text);
-            date = QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss");
+            date = QDateTime::currentDateTime().toString(DateTimeFormat);
             QTextStream(&file) << date;
         } else {
             file.open(QIODevice::ReadOnly | QIODevice::Text);
             QTextStream(&file) >> date;
         }
-        f.lastModification = QDateTime::fromString(date, "yyyy-MM-dd-HH-mm-ss");
+        f.lastModification = QDateTime::fromString(date, DateTimeFormat);
     }
 }
 
@@ -60,7 +62,7 @@ void FlashcardManager::makeNewDatabaseIfNotValid()
     xmlWriter.setAutoFormatting(true);
     xmlWriter.writeStartDocument(); //header
     xmlWriter.writeStartElement("EvoMemora");
-    xmlWriter.writeAttribute("date",QDate(1900, 1, 1).toString());
+    xmlWriter.writeAttribute("date",QDate(1900, 1, 1).toString(DateTimeFormat));
     xmlWriter.writeEndElement(); //EvoMemora
     xmlWriter.writeEndDocument(); //header
     file.close();
@@ -69,29 +71,31 @@ void FlashcardManager::makeNewDatabaseIfNotValid()
 void FlashcardManager::reset()
 {
     flashcardList.clear();
+    flashcardMap.clear();
 }
 
 void FlashcardManager::addFlashCard(QString cardName)
 {
     FlashCardManagerFlashCard flashcard(cardName);
-    flashcardList.append(flashcard);
+    flashcardMap[cardName] = flashcard;
 }
 
-QList<FlashCardManagerFlashCard>& FlashcardManager::getFlashCardList()
+FlashCardManagerFlashCard& FlashcardManager::getFlashCardIndex(int i)
 {
-    return flashcardList;
+    return flashcardMap[flashcardList[i]];
 }
 
 int FlashcardManager::countDueDateFlashCards()
 {
     int count=0;
-    for (auto &f : flashcardList)
+    for (auto &f : flashcardMap)
         if (f.isShowTime()) count++;
     return count;
 }
 
 void FlashcardManager::save()
 {
+    qDebug() << "flashcardManager::save called";
     if (root == "" || databaseName=="") return;
     QString filename = QFileInfo(root, databaseName).absoluteFilePath();
     QFile file(filename);
@@ -104,14 +108,15 @@ void FlashcardManager::save()
 
     xmlWriter.writeStartDocument(); //header
     xmlWriter.writeStartElement("EvoMemora");
-    xmlWriter.writeAttribute("date", QDate::currentDate().toString());
+    xmlWriter.writeAttribute("date", QDateTime::currentDateTime().toString(DateTimeFormat));
 
-    for (int c=0;c<flashcardList.count();c++) {
-            xmlWriter.writeStartElement("flashcard");
-            xmlWriter.writeAttribute("name", flashcardList[c].name);
-            xmlWriter.writeAttribute("previousDueDate", flashcardList[c].prevDueDate.toString());
-            xmlWriter.writeAttribute("nextDueDate", flashcardList[c].nextDueDate.toString());
-            xmlWriter.writeEndElement(); // flashcard
+    for (auto it=flashcardMap.constBegin();it!=flashcardMap.constEnd();++it) {
+        auto& flashcard = it.value();
+        xmlWriter.writeStartElement("flashcard");
+        xmlWriter.writeAttribute("name", flashcard.name);
+        xmlWriter.writeAttribute("previousDueDate", flashcard.prevDueDate.toString(DateTimeFormat));
+        xmlWriter.writeAttribute("nextDueDate", flashcard.nextDueDate.toString(DateTimeFormat));
+        xmlWriter.writeEndElement(); // flashcard
     }
 
     xmlWriter.writeEndElement(); //EvoMemora
@@ -123,27 +128,27 @@ void FlashcardManager::save()
 void FlashcardManager::readDatabase()
 {
     reset();
-    flashcardList = readDatabase(this->root, this->databaseName);
+    flashcardMap = readDatabase(this->root, this->databaseName);
 }
 
-QList<FlashCardManagerFlashCard> FlashcardManager::readDatabase(const QString& root, const QString& databaseName)
+QMap<QString, FlashCardManagerFlashCard> FlashcardManager::readDatabase(const QString& root, const QString& databaseName)
 {
-    QList<FlashCardManagerFlashCard> flashcardList;
+    QMap<QString, FlashCardManagerFlashCard> flashcardMap;
     if (root == "" || databaseName=="")
-        return flashcardList;
+        return flashcardMap;
 
     QString filename = QFileInfo(root, databaseName).absoluteFilePath();
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << "Failed to open file:" << filename << file.errorString();
-        flashcardList.clear();
-        return flashcardList;
+        flashcardMap.clear();
+        return flashcardMap;
     }
     QXmlStreamReader reader(&file);
     if (!reader.readNextStartElement() || reader.name() != QStringLiteral("EvoMemora")) {
         qDebug() << "Error reading the database file. ";
-        flashcardList.clear();
-        return flashcardList;
+        flashcardMap.clear();
+        return flashcardMap;
     }
 
     QString dateString = reader.attributes().value("date").toString();
@@ -155,9 +160,10 @@ QList<FlashCardManagerFlashCard> FlashcardManager::readDatabase(const QString& r
                 QString cardName = reader.attributes().value("name").toString();
                 //qDebug() << "cardname = " << cardName;
                 FlashCardManagerFlashCard flashcard(cardName);
-                flashcard.prevDueDate = QDateTime::fromString(reader.attributes().value("previousDueDate").toString());
-                flashcard.nextDueDate = QDateTime::fromString(reader.attributes().value("nextDueDate").toString());
-                flashcardList.append(flashcard);
+                flashcard.prevDueDate = QDateTime::fromString(reader.attributes().value("previousDueDate").toString(), DateTimeFormat);
+                flashcard.nextDueDate = QDateTime::fromString(reader.attributes().value("nextDueDate").toString(), DateTimeFormat);
+                flashcardMap[cardName]=flashcard;
+                flashcardList.append(cardName);
                 reader.readElementText();
             } else {
                 qDebug() << "flashmanager.cpp error reading flashcard" << reader.name();
@@ -166,8 +172,10 @@ QList<FlashCardManagerFlashCard> FlashcardManager::readDatabase(const QString& r
             }
         }
     }
+    for (auto& name : flashcardList)
+        qDebug() << name;
     file.close();
-    return flashcardList;
+    return flashcardMap;
 }
 
 void FlashcardManager::sync()
@@ -195,6 +203,7 @@ void FlashcardManager::sync()
     QTextStream in(&file);
     while (!in.atEnd()) {
         QString line = in.readLine();
+        qDebug() << line;
         static QRegularExpression regex("\\s+");
         QStringList parts = line.split(regex);
         if (parts.size() != 2) {
@@ -205,46 +214,45 @@ void FlashcardManager::sync()
         QString timestamp = parts.at(1);
         for (auto &f : tmp_flashList) {
             if (f.name == name) {
-                f.lastModification = QDateTime::fromString(timestamp, "yyyy-MM-dd-HH-mm-ss");
+                f.lastModification = QDateTime::fromString(timestamp, DateTimeFormat);
                 break;
             }
         }
     }
-
-    for (const auto &tmp : tmp_flashList) {
-        bool new_flashcard = true;
-        for (const auto &ff : flashcardList) {
-            if (tmp.name == ff.name) {
-                if (tmp.lastModification > ff.lastModification) {
-                    qDebug() << "modification date mismatch: " << tmp.name;
-                    break;
-                }
-                new_flashcard = false;
-                break;
+    for (auto it=tmp_flashList.constBegin();it!=tmp_flashList.constEnd();it++) {
+        auto& name = it.key();
+        auto& tmp = it.value();
+        if (!flashcardMap.contains(name)) {
+            download_folder(root, name);
+            flashcardMap[name] = tmp;
+        }
+        auto& f = flashcardMap[name];
+        if (tmp.lastModification > f.lastModification) {
+            qDebug() << "modification date mismatch: " << tmp.name;
+            qDebug() << tmp.lastModification << ", " << f.lastModification;
+            download_folder(root, name);
+        }
+        if (tmp.prevDueDate > f.prevDueDate) f=tmp;
+    }
+    for (auto it=flashcardMap.constBegin();it!=flashcardMap.constEnd();it++) {
+        auto& name = it.key();
+        auto& f = it.value();
+        if (!tmp_flashList.contains(name)) {
+            upload_folder(root, name);
+        } else {
+            auto& tmp = tmp_flashList[name];
+            if (tmp.lastModification < f.lastModification) {
+                qDebug() << "modification date mismatch: " << tmp.name;
+                qDebug() << tmp.lastModification << ", " << f.lastModification;
+                upload_folder(root, name);
             }
         }
-        if (new_flashcard) {
-            qDebug() << "downloading " << tmp.name;
-            download_folder(root, tmp.name);
-        }
     }
-    for (const auto &f : flashcardList) {
-        bool new_flashcard = true;
-        for (const auto &tmp : tmp_flashList) {
-            if (f.name == tmp.name) {
-                if (f.lastModification>tmp.lastModification) {
-                    qDebug() << "modification date mismatch: " << tmp.name;
-                    break;
-                }
-                new_flashcard = false;
-                break;
-            }
-        }
-        if (new_flashcard) {
-            qDebug() << "uploading " << f.name;
-            upload_folder(root, f.name);
-        }
-    }
+    flashcardList.clear();
+    for (auto [n, v] : flashcardMap.asKeyValueRange())
+        flashcardList.append(n);
+    save();
+    readDatabase();
     upload(root, "EvoMemora.rox");
 }
 
