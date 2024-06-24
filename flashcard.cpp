@@ -7,35 +7,22 @@ FlashCard::FlashCard()
     size = QSize(900, 700);
 }
 
-/*
 QString FlashCard::generateName()
 {
+    if (root=="") return "";
+    QString name =  QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss") + "_" + QSysInfo::machineHostName().replace(".", "_");
     if (root=="") return "";
     QDir folder(root);
     QStringList entryList = folder.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+    QRegularExpression re{"_([0-9]+)"};
 
     int number = 1;
-    while (true) {
-        QString name = "flashcard" + QString::number(number);
-        bool exists = false;
-        for (int i = 0; i < entryList.size(); ++i) {
-            if (entryList.at(i) == name) {
-                exists = true;
-                break;
-            }
-        }
-        if (!exists) {
-            return name;
-        }
-        ++number;
-    }
-}
-*/
 
-QString FlashCard::generateName()
-{
-    if (root=="") return "";
-    return QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm-ss") + "_" + QSysInfo::machineHostName().replace(".", "_");
+    for (const auto& s : entryList) {
+        auto m = re.match(s);
+        if (m.hasMatch()) number = m.captured(1).toInt()+1;
+    }
+    return name+QString("_")+QString::number(number);
 }
 
 void FlashCard::removeRow(int face, int r)

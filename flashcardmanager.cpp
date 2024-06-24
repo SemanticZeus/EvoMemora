@@ -9,6 +9,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QRegularExpression>
+#include <QNetworkAccessManager>
+#include <QNetworkCookieJar>
+#include <QNetworkCookie>
 
 #include "credentials.h"
 
@@ -172,8 +175,6 @@ QMap<QString, FlashCardManagerFlashCard> FlashcardManager::readDatabase(const QS
             }
         }
     }
-    for (auto& name : flashcardList)
-        qDebug() << name;
     file.close();
     return flashcardMap;
 }
@@ -189,6 +190,7 @@ void FlashcardManager::sync()
         msg.exec();
         return;
     }
+    login();
     updateModificationDate();
     QString tmpFolder = QDir(root).filePath("tmp");
     download(tmpFolder, "", "EvoMemora.rox");
@@ -261,6 +263,7 @@ void FlashcardManager::download_timestamps()
     auto multiPart = make_header(username, password, "download timestamps");
 
     request.setUrl(url);
+
     QNetworkReply *reply = manager.post(request, multiPart);
     multiPart->setParent(reply);
 
@@ -279,9 +282,10 @@ void FlashcardManager::download_timestamps()
     if (statusCode == 200 && localFile.open(QIODevice::WriteOnly)) {
         localFile.write(reply->readAll());
         localFile.close();
-    } else if (statusCode!=200)
+    } else if (statusCode!=200) {
         qDebug() << "Could not download the file";
-    else {
+        exit(-1);
+    } else {
         qDebug() << "Could not open file for writing.";
     }
     reply->deleteLater();
@@ -350,6 +354,59 @@ void FlashcardManager::upload(const QString &root, const QString& filename)
     reply->deleteLater();
 }
 
+bool FlashcardManager::login()
+{
+    QEventLoop loop;
+    // Step 1: Fetch the login page to retrieve CSRF token
+    request.setUrl(login_url);
+    QNetworkReply *reply = manager.get(request);
+
+    QObject::connect(reply, &QNetworkReply::finished, &loop,
+                     &QEventLoop::quit);
+    loop.exec();
+
+    QList<QNetworkCookie> cookies =
+        manager.cookieJar()->cookiesForUrl(login_url);
+    QNetworkCookie csrfCookie;
+    for (auto &cookie : cookies) {
+        if (cookie.name() == "csrftoken") {
+            csrfCookie = cookie;
+            break;
+        }
+    }
+
+    // Step 2: Send login credentials
+    QUrlQuery postData;
+    postData.addQueryItem("username", username);
+    postData.addQueryItem("password", password);
+    postData.addQueryItem("csrfmiddlewaretoken", csrfCookie.value());
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      "application/x-www-form-urlencoded");
+    request.setHeader(QNetworkRequest::CookieHeader,
+                      QVariant::fromValue(cookies));
+    request.setRawHeader("Referer", url.toEncoded());
+    request.setUrl(login_url);
+    reply->deleteLater();
+
+    reply = manager.post(request,
+                    postData.toString(QUrl::FullyEncoded).toUtf8());
+
+    QObject::connect(reply, &QNetworkReply::finished,
+                     &loop, &QEventLoop::quit);
+    loop.exec();
+    bool success = true;
+    if (reply->error() == QNetworkReply::NoError) {
+        qDebug() << "Login successful!";
+    } else {
+        qDebug() << "Failed to login:" << reply->errorString();
+        exit(-1);
+        success = false;
+    }
+    reply->deleteLater();
+    return success;
+}
+
 void FlashcardManager::download(const QString &root,
                     const QString &foldername,
                     const QString &filename)
@@ -363,11 +420,15 @@ void FlashcardManager::download(const QString &root,
     QString full_path = QDir(foldername).filePath(filename);
     file.setBody(full_path.toUtf8());
     multiPart->append(file);
-
+    request = QNetworkRequest{};
     request.setUrl(url);
+
+    qDebug() << "\n\nprinting cookies";
+    for (auto &c : manager.cookieJar()->cookiesForUrl(url))
+        qDebug() << c.domain() << c.name() << c.path() << c.value();
+
     QNetworkReply *reply = manager.post(request, multiPart);
     multiPart->setParent(reply);
-
     QEventLoop loop;
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();

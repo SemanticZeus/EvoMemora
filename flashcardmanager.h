@@ -127,6 +127,7 @@ public:
     void updateModificationDate();
 
 protected:
+    bool login();
     void readDatabase();
     QMap<QString, FlashCardManagerFlashCard> readDatabase(const QString &root, const QString &databaseName);
     void makeNewDatabaseIfNotValid();

@@ -1,5 +1,15 @@
 #include "flashcardviewwidget.h"
 
+class MyListWidget : public QListWidget {
+public:
+using QListWidget::QListWidget;
+    virtual void keyPressEvent(QKeyEvent *event) {
+        QListWidget::keyPressEvent(event);
+        emit itemClicked(this->currentItem());
+    }
+};
+
+
 FlashCardViewWidget::FlashCardViewWidget(FlashcardManager *flashcardManager, QWidget *parent) : QWidget(parent)
 {
     this->flashcardManager = flashcardManager;
@@ -15,8 +25,12 @@ FlashCardViewWidget::FlashCardViewWidget(FlashcardManager *flashcardManager, QWi
     messageLabel->setFont(font);
     QVBoxLayout *mainLayout = new QVBoxLayout;
     QHBoxLayout *mainHorizontalLayout = new QHBoxLayout;
-    listWidget = new QListWidget;
+    listWidget = new MyListWidget;
     listWidget->setFixedWidth(210);
+    connect(listWidget, &QListWidget::itemClicked, this, [&](QListWidgetItem *item){
+        currentIndex = listWidget->row(item);
+        loadCurrentFlashCard();
+    });
     connect(listWidget, &QListWidget::itemClicked, this, [&](QListWidgetItem *item){
         currentIndex = listWidget->row(item);
         loadCurrentFlashCard();
