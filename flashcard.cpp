@@ -14,7 +14,7 @@ QString FlashCard::generateName()
     if (root=="") return "";
     QDir folder(root);
     QStringList entryList = folder.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
-    QRegularExpression re{"_([0-9]+)"};
+    static QRegularExpression re{"_([0-9]+)"};
 
     int number = 1;
 

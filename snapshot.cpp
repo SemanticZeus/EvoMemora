@@ -12,6 +12,9 @@ SnapShotWidget::SnapShotWidget(QWidget *parent) : QWidget(parent), isDrawing(fal
     screen = QGuiApplication::primaryScreen();
     originalScreenShot = screen->grabWindow(0);
     imageLabel = new QLabel(this);
+    originalScreenShot.save("tmp.jpeg");
+    originalScreenShot.load("tmp.jpeg");
+    imageLabel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     buttonsLayout = new QHBoxLayout;
     buttonsLayout->addWidget(resetButton);
     buttonsLayout->addWidget(cropButton);
@@ -22,6 +25,7 @@ SnapShotWidget::SnapShotWidget(QWidget *parent) : QWidget(parent), isDrawing(fal
         screenComboBox->addItem(item);
     }
     connect(newSnapShot, &QPushButton::released, this, &SnapShotWidget::takeNewSnapShot);
+    connect(newSnapShot, &QPushButton::released, this, &SnapShotWidget::updateGeometry);
     buttonsLayout->addWidget(newSnapShot);
     buttonsLayout->addWidget(screenComboBox);
     buttonsLayout->addStretch();
@@ -54,8 +58,12 @@ void SnapShotWidget::takeNewSnapShot()
     QThread::msleep(500);
     screen = QGuiApplication::screens().at(i);
     originalScreenShot = screen->grabWindow(0);
+    originalScreenShot.save("tmp.jpeg");
+    originalScreenShot.load("tmp.jpeg");
     latestScreenShot = originalScreenShot;
     screenShot = latestScreenShot.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    qDebug() << "imageLabel size = " << imageLabel->size() << ", originalScreenShot size = " << originalScreenShot.size();
     imageLabel->setPixmap(screenShot);
     this->setVisible(true);
 }
@@ -112,7 +120,10 @@ void SnapShotWidget::resizeEvent(QResizeEvent *event) {
     QWidget::resizeEvent(event);
     QSize size = imageLabel->size();
     screenShot = latestScreenShot.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    qDebug() << "screenShot.size = " << screenShot.size() << "latestScreenShot.size = " << latestScreenShot.size();
+    qDebug() << this->size() << "imageLable->size() = " << imageLabel->size();
     imageLabel->setPixmap(screenShot);
+    imageLabel->updateGeometry();
 }
 
 void SnapShotWidget::mousePressEvent(QMouseEvent *event) {
